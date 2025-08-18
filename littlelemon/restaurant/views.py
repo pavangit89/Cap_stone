@@ -2,6 +2,8 @@ from django.shortcuts import render
 from .models import MenuItem, Booking
 from .serializers import MenuItemSerializer, BookingSerializer
 from rest_framework.response import Response
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.authtoken.models import Token
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.renderers import TemplateHTMLRenderer
@@ -14,6 +16,19 @@ def index(request):
 
 def about(request):
     return render(request, 'about.html')
+
+class LoginView(ObtainAuthToken):
+        def get(self, request, *args, **kwargs):
+            serializer = self.serializer_class(data=request.data,
+                                               context={'request': request})
+            serializer.is_valid(raise_exception=True)
+            user = serializer.validated_data['user']
+            token, created = Token.objects.get_or_create(user=user)
+            return Response({
+                'token': token.key,
+                'user_id': user.pk,
+                'email': user.email
+            })
 
 # api
 class MenuItemsView(generics.ListCreateAPIView):
