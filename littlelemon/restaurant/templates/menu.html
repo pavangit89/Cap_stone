@@ -2,7 +2,7 @@
 {% load static %}
 {% block content %}
 <h1>Menu</h1>
-<!--Begin col-->
+<!--Begin col <script>alert("Hello")</script>-->
 
 <div class="column">
     {% for item in menu %}
@@ -12,6 +12,7 @@
             </a>
         <span class="menu-price">
             ${{ item.price }}
+            
         </span>
     </p>
     {% endfor %}

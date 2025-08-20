@@ -16,11 +16,14 @@
 
 <header>
   {% if not request.user.is_authenticated %}
-  <a href="{% url 'login' %}" class="top-right-paragraph2">login</a>
 
+  <form class="top-right-paragraph2" method="post" action="{% url 'authenticate' %}">
+        {% csrf_token %}
+        <button type="submit">login</button>
+    </form>
   {% else %}
   <p class="top-right-paragraph">User :{{request.user}}</p>
-  <form class="top-right-paragraph2" method="post" action="{% url 'logout' %}">
+  <form class="top-right-paragraph2" method="post" action="{% url 'userlogout' %}">
         {% csrf_token %}
         <button type="submit">Logout</button>
     </form>
@@ -36,7 +39,7 @@
     
     <li><a href="{% url 'index' %}">Home</a></li>
     <li><a href="{% url 'about' %}">About</a></li>
-    <li><a href="{% url 'menu' %}">Menu</a></li>
+    <li><a href="{% url 'menu' %}" id="mnu">Menu</a></li>
 
 
   </ul>
