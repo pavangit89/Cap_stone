@@ -3,6 +3,12 @@ from . import views
 from django.contrib.auth import views as auth_views
 from django.views.generic import TemplateView
 from rest_framework.authtoken import views as v1
+from django.urls import path, register_converter
+from .converters import DateConverter
+
+register_converter(DateConverter, 'date')
+
+
 urlpatterns = [
     # static page
     path('', views.index, name='index'),   
@@ -22,7 +28,11 @@ urlpatterns = [
     path('api/menu/<int:pk>', views.SingleMenuItemView.as_view(),name='menu_item'),
 
     # bookings
+    path('api/booktable/', views.BookingView.as_view(),name="book"),
     path('api/book/', views.BookingView.as_view()),
+    #path(r'api/vbookings', views.bookings,name="vbookings"),
+    path('api/bookingdate/', views.BookingDateView.as_view(),name="bookings"),
+    path('api/bookings/', views.SingleBookingView.as_view()),
     path('api/book/<int:pk>', views.SingleBookingView.as_view()),
 
     # user managements

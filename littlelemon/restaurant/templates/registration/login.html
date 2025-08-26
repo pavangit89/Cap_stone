@@ -10,14 +10,17 @@
     <link rel="stylesheet" 
           href=
 "https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" />
-    <title>Bootstrap Form</title>
+    <title>Login Form</title>
 </head>
 <h2>Log In</h2>
-<script>alert("hello")</script>
+
 <form method="post" action="">
     {% csrf_token %}
+      {% if name %}
+               <p style="color: red;"> Please login to access this page</p>
+                {% endif %}
  
-<!--  {{ form.as_p }}     -->
+<!--  {{ form.as_p }}  {{ name|upper }}    -->
 
 
     <div class="form-group">

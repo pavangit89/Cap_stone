@@ -1,16 +1,22 @@
 from django.shortcuts import render
+import re
 from .models import MenuItem, Booking
 from .serializers import MenuItemSerializer, BookingSerializer
 from rest_framework.response import Response
 
 from rest_framework.authtoken.models import Token
 from rest_framework import generics,mixins
+from rest_framework.exceptions import NotFound
 from django.contrib.auth.mixins import LoginRequiredMixin
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.renderers import TemplateHTMLRenderer
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import views,login, authenticate
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
+from django.core import serializers
+from datetime import datetime
+import json
+from django.http import HttpResponse
 
 # Create your views here.
 
@@ -22,6 +28,7 @@ def about(request):
     return render(request, 'about.html')
 
 def login_view(request):
+    name=""
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
@@ -31,12 +38,14 @@ def login_view(request):
             if user is not None:
                 login(request, user)
                 token, created = Token.objects.get_or_create(user=user)
-                print("token",token.key)
-                print("request.POST.get('next')",request.POST)
+                print("token",token.key)               
                 return redirect('/restaurant/')  # Redirect to a success page
     else:
+        #print("request.POST.get('next')",re.split(r'/', request.GET.get('next')[1:]))
+        if request.GET.get('next'):
+            name= re.split(r'/', request.GET.get('next'))[-2]        
         form = AuthenticationForm()
-    return render(request, 'registration/login.html', {'form': form})
+    return render(request, 'registration/login.html', {'form': form,'name':name})
 '''
 class CustomLoginView(ObtainAuthToken,views.LoginView):
         def post(self, request, *args, **kwargs):
@@ -93,9 +102,12 @@ class SingleMenuItemView(LoginRequiredMixin, generics.RetrieveUpdateDestroyAPIVi
 
 
     
-class BookingView(generics.ListCreateAPIView):
+class BookingView(LoginRequiredMixin,generics.ListCreateAPIView):
+    print("dateBookingView")
     queryset = Booking.objects.all()
     serializer_class = BookingSerializer
+    renderer_classes = [TemplateHTMLRenderer]
+    template_name = 'book.html'
 
     def get_queryset(self):
         if self.request.user.is_superuser:
@@ -103,15 +115,66 @@ class BookingView(generics.ListCreateAPIView):
             return Booking.objects.all()
         else:
             # customer can only get all the bookings that booking name is the customer's username
+                
+
             return Booking.objects.filter(name=self.request.user.username)
 
     def get_permissions(self):
         return [IsAuthenticated()]
-    
-class SingleBookingView(generics.RetrieveUpdateDestroyAPIView):
+
+class BookingDateView(LoginRequiredMixin,generics.ListCreateAPIView):
+    #print("dateBookingView")
     queryset = Booking.objects.all()
     serializer_class = BookingSerializer
-    # only admin could check/delete single bookings
+    def get_queryset(self):
+            print("Booking date else")                
+            return Booking.objects.filter(date=self.request.query_params.get('date'))
+    def get_permissions(self):
+        return [IsAuthenticated()]
     
+       
+class SingleBookingView(generics.RetrieveUpdateDestroyAPIView):
+    print("SingleBookingView")
+    queryset = Booking.objects.all()
+    serializer_class = BookingSerializer
+    
+    ''' 
+       def get(self, request, *args, **kwargs):
+        queryset=self.get_queryset()
+        filter={}
+        print("field ",self.lookup_field)
+        obj = get_object_or_404(queryset,self.lookup_field)
+        return obj
+
+        def get_object(self):
+     print("self.request.query_params.get('custom_id')",self.request.query_params.get('date'))
+     custom_date=self.request.query_params.get('date')
+     if custom_date:
+         obj = get_object_or_404(self.get_queryset(), date=custom_date)
+         print("obj",obj)
+     else:
+         print("obj else",obj)
+         obj = super().get_object() 
+     return obj
+    
+    def get(self,lookup_field = ['pk','date']):
+            if self.request.GET.get('date'):
+                print("date",self.request.GET.get('date'))
+                data =Booking.objects.get(date=self.request.GET.get('date'),name=self.request.user.username)
+                print("Booking Data", data)
+                return Response({'menu_item': data})
+            else:
+                print("date",self.request.GET.get('pk'))
+                data =Booking.objects.filter(pk=id)
+                print("Booking Data", data)
+                return Response({'menu_item': data})
+                 '''
     def get_permissions(self):
         return [IsAdminUser()]
+
+def bookings(request):
+    date=request.GET.get('date',datetime.today().date())
+    bookings=Booking.objects.all().filter(date=date)
+    booking_json=serializers.serialize('json', bookings)
+    print("booking_json",booking_json)
+    return HttpResponse(booking_json,content_type='application/json')

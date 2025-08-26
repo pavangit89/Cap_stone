@@ -68,17 +68,24 @@ const formattedDate = `${year}-${month}-${day}`;
 
   document.getElementById('reservation_date').addEventListener('change',getBookings)
   function getBookings() {
+    console.log("In getBookings")
     let reserved_slots = []
     //date = document.getElementById('reservation_date').value
     document.getElementById('today').innerHTML = document.getElementById('reservation_date').value
-    
+   
     fetch("{% url 'bookings' %}" + '?date=' + document.getElementById('reservation_date').value)
       .then(r => r.json())
       .then(data => {
+        if (Array.isArray(data)) {
+          console.log("if data")
+        }
+        else if (data && data.results && Array.isArray(data.results)) {
+                    console.log("ifelse data")
+                } 
         reserved_slots = []
         bookings = ''
         //console.log("data",data[0].fields.reservation_slot)
-        //console.log("data",data)
+        console.log("data",data)
         /* Step 11: Part three */
         for(const item of data){
           //console.log("item",item.fields.reservation_slot)
@@ -109,7 +116,10 @@ const formattedDate = `${year}-${month}-${day}`;
           bookings = "No bookings"
         }
         document.getElementById('bookings').innerHTML = bookings
-      })
+      }) .catch(error => {
+    console.error('Fetch error:', error); 
+    alert("Error", error)// Handle network errors or errors in the .then chain
+  });
   }
 
   function formatTime(time) {
