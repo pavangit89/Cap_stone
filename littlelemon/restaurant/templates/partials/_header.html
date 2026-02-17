@@ -1,0 +1,50 @@
+{% load static %}
+<style>
+.top-right-paragraph {
+  position: absolute; /* or fixed, if you want it to stay put when scrolling */
+  top: 0;
+  right: 0;
+  margin: 10px; /* Add some margin for spacing from the edge */
+}
+.top-right-paragraph2 {
+  position: absolute; /* or fixed, if you want it to stay put when scrolling */
+  top: 0;
+  right: 0;
+  margin: 30px; /* Add some margin for spacing from the edge */
+}
+</style>
+
+<header>
+  {% if not request.user.is_authenticated %}
+
+  <form class="top-right-paragraph2" method="post" action="{% url 'authenticate' %}">
+        {% csrf_token %}
+        <button type="submit">login</button>
+    </form>
+  {% else %}
+  <p class="top-right-paragraph">User :{{request.user}}</p>
+  <form class="top-right-paragraph2" method="post" action="{% url 'userlogout' %}">
+        {% csrf_token %}
+        <button type="submit">Logout</button>
+    </form>
+    
+                
+  {% endif %}
+
+  <img src="{% static 'img/logo.png' %}" />
+
+</header>
+<nav>
+  <ul>
+    
+    <li><a href="{% url 'index' %}">Home</a></li>
+    <li><a href="{% url 'about' %}">About</a></li>
+    <li><a href="{% url 'menu' %}" id="mnu">Menu</a></li>
+     <li><a href="{% url 'book' %}">Book</a></li>
+
+
+  </ul>
+
+</nav>
+
+

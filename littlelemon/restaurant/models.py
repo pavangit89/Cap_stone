@@ -22,4 +22,4 @@ class MenuItem(models.Model):
     featured = models.BooleanField(default=False)
 
     def __str__(self):
-        return f'{self.title} : {str(self.price)}'
+        return f'{self.title}'

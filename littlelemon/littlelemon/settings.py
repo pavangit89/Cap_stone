@@ -143,7 +143,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',
-        'rest_framework.renderers.BrowsableAPIRenderer',
+      ##  'rest_framework.renderers.BrowsableAPIRenderer',
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
@@ -156,3 +156,7 @@ REST_FRAMEWORK = {
 }
 
 DJOSER={"USER_ID_FIELD":"username"}
+
+LOGIN_URL = '/restaurant/authenticate/'
+
+#LOGOUT_REDIRECT_URL = 'restaurant/'
